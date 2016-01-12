@@ -112,12 +112,12 @@ sub parseElasticsearchResponse {
     my %aggValue = %{$aggregations{$aggregationName}};
     my $value = $aggValue{value};
     my $alertStatus = getAlertStatus($value);
-    print "\nCurrent Value: $value, Critical: $critical, Warning: $warning\n";
+    print "\nExited with: $alertStatus, Current Value: $value, Critical: $critical, Warning: $warning\n";
     exit $alertStatus;
   }
   else {
       print $res->status_line, " from elasticsearch\n";
-      exit 4;
+      exit 3;
   }
 }
 
@@ -163,12 +163,12 @@ sub help {
   print "\t0: Everything OK, check passed\n";
   print "\t1: Warning threshold breached\n";
   print "\t2: Critical threshold breached\n";
-  print "\t4: Unknown, encountered an error querying elasticsearch\n";
+  print "\t3: Unknown, encountered an error querying elasticsearch\n";
 }
 
 sub inputError {
   my ($option) = @_;
   print STDERR "\n\n\t\tMissing required parameter \"$option\"\n\n";
   help();
-  exit 4;
+  exit 3;
 }
