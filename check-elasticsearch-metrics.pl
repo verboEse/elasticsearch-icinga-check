@@ -151,15 +151,15 @@ sub help {
   print "\t-c [threshold]: critical threshold\n";
   print "\t-w [threshold]: warning threshold\n";
   print "\t-s [seconds]: number of seconds from now to check\n";
-  print "\t-a [name]: aggregation name\n";
-  print "\t-t [type]: aggregation type\n";
-  print "\t-f [field_name]: the name of the field to aggregate\n";
   print "\t-q [query_string]: the query to run in elasticsearch\n";
   print "\t-h [host]: elasticsearch host\n\n";
   print "\tOptional Settings:\n";
   print "\t-?: this help message\n";
   print "\t-r: reverse threshold (so amounts below threshold values will alert)\n";
   print "\t-q [port]: elasticsearch port (defaults to 9200)\n\n";
+  print "\t-a [name]: aggregation name\n";
+  print "\t-t [type]: aggregation type\n";
+  print "\t-f [field_name]: the name of the field to aggregate\n";
   print "Error codes:\n";
   print "\t0: Everything OK, check passed\n";
   print "\t1: Warning threshold breached\n";
