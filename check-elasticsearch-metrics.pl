@@ -17,15 +17,6 @@ if(!defined $opt{c} ){
 if(!defined $opt{w}){
   return inputError('w');
 }
-if(!defined $opt{a}){
-  return inputError('a');
-}
-if(!defined $opt{t}){
-  return inputError('t');
-}  
-if(!defined $opt{f} ){
-  return inputError('f');
-}
 if(!defined $opt{q}){
   return inputError('q');
 }
@@ -49,6 +40,7 @@ my $field = $opt{f};
 my $query = $opt{q};
 my $host = $opt{h};
 my $port = $opt{p};
+my $hasAggregation = $aggregationName && $aggregationType && $field;
 
 makeElasticsearchRequest();
 
@@ -87,15 +79,17 @@ sub makeElasticsearchRequest {
           }
         }
       }
-    },
-    \"aggs\": {
-      \"$aggregationName\": {
-        \"$aggregationType\": {
-          \"field\": \"$field\"
+    }";
+  if($hasAggregation){
+    $content = "$content,\"aggs\": {
+        \"$aggregationName\": {
+          \"$aggregationType\": {
+            \"field\": \"$field\"
+          }
         }
-      }
-    }
-  }";
+      }";
+  }
+  $content = "$content }";
   $req->content($content);
   my $res = $ua->request($req);
   parseElasticsearchResponse($res);
@@ -108,9 +102,16 @@ sub parseElasticsearchResponse {
   if ($res->is_success) {
     my $content = $res->content;
     my %parsed = %{decode_json $content};
-    my %aggregations = %{$parsed{aggregations}};
-    my %aggValue = %{$aggregations{$aggregationName}};
-    my $value = $aggValue{value};
+    my $value = -1;
+    if($hasAggregation){
+      my %aggregations = %{$parsed{aggregations}};
+      my %aggValue = %{$aggregations{$aggregationName}};
+      $value = $aggValue{value};
+    } else {
+      my %hits = %{$parsed{hits}};
+      $value = $hits{total};
+    }
+    
     my $alertStatus = getAlertStatus($value);
     print "\nExited with: $alertStatus, Current Value: $value, Critical: $critical, Warning: $warning\n";
     exit $alertStatus;
