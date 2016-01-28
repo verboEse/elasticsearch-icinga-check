@@ -98,7 +98,6 @@ sub makeElasticsearchRequest {
       }";
   }
   $content = "$content }";
-  print $content;
   $req->content($content);
   my $res = $ua->request($req);
   parseElasticsearchResponse($res);
