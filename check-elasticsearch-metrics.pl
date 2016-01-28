@@ -139,7 +139,6 @@ sub buildIndices {
     $indexCount++;
   }
   chop($index);
-  printf "$index\n";
   return $index
 }
 
