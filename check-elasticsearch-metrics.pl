@@ -30,12 +30,6 @@ if(!defined $opt{n}){
 if(!defined $opt{x}){
   return inputError('x');
 }
-if(!defined $opt{y}){
-  return inputError('y');
-}
-if(!defined $opt{m}){
-  return inputError('m');
-}
 if(!defined $opt{p}){
   $opt{p} = 9200;
 }
@@ -60,6 +54,7 @@ my $port = $opt{p};
 my $indexPattern = $opt{n};
 my $earliestIndexCount = $opt{i};
 my $hasDays = defined $opt{d};
+my $specifiedDate = defined $opt{m} && defined $opt{y};
 my $hasAggregation = $aggregationName && $aggregationType && $field;
 
 makeElasticsearchRequest();
@@ -118,6 +113,42 @@ sub makeElasticsearchRequest {
 sub buildIndices {
   my $indexCount = 1;
   my $index;
+  my $parsedDate = parseDate();
+
+  while ($indexCount <= $earliestIndexCount){
+    my $year = $parsedDate->year;
+    my $month = $parsedDate->month;
+    if($month < 10){
+      $month = "0$month"
+    }
+    my $day = $parsedDate->day;
+    if($day < 10){
+      $day = "0$day"
+    }
+    $index = "$index$indexPattern";
+    $index =~ s/{prefix}/$opt{x}/g;
+    $index =~ s/{yyyy}/$year/g;
+    $index =~ s/{mm}/$month/g;
+    $index =~ s/{dd}/$day/g;
+    $index = "$index,";
+    if($hasDays){
+      $parsedDate->subtract(days => 1);
+    } else {
+      $parsedDate->subtract(months => 1);
+    }
+    $indexCount++;
+  }
+  chop($index);
+  printf "$index\n";
+  return $index
+}
+
+sub parseDate {
+  if(!$specifiedDate){
+    my $now = localtime;
+    $opt{y} = $now->year;
+    $opt{m} = $now->mon;
+  }
   my $pattern = "%Y/%m";
   if($hasDays){
     $pattern = "$pattern/%d";
@@ -130,33 +161,7 @@ sub buildIndices {
   if($hasDays){
     $date = "$date/$opt{d}";
   }
-  my $now = $parser->parse_datetime($date);
-  while ($indexCount <= $earliestIndexCount){
-    my $year = $now->year;
-    my $month = $now->month;
-    if($month < 10){
-      $month = "0$month"
-    }
-    my $day = $now->day;
-    if($day < 10){
-      $day = "0$day"
-    }
-    $index = "$index$indexPattern";
-    $index =~ s/{prefix}/$opt{x}/g;
-    $index =~ s/{yyyy}/$year/g;
-    $index =~ s/{mm}/$month/g;
-    $index =~ s/{dd}/$day/g;
-    $index = "$index,";
-    if($hasDays){
-      $now->subtract(days => 1);
-    } else {
-      $now->subtract(months => 1);
-    }
-    $indexCount++;
-  }
-  chop($index);
-  printf "$index\n";
-  return $index
+  return $parser->parse_datetime($date);
 }
 
 sub parseElasticsearchResponse {
@@ -217,9 +222,7 @@ sub help {
   print "\t-h [host]: elasticsearch host\n";
   print "\t-i [number_of_indices]: the number of indices to go back through, defaults to 2\n";
   print "\t-x [indices_prefix]: the prefix of your elasticsearch indices\n";
-  print "\t-m [month]: the month of your latest elasticsearch index\n";
-  print "\t-n [index_pattern]: the pattern expects a prefix and months or years, e.g: {prefix}-{yyyy}.{mm}\n";
-  print "\t-y [year]: the year of your latest elasticsearch index\n\n";
+  print "\t-n [index_pattern]: the pattern expects a prefix and months or years, e.g: {prefix}-{yyyy}.{mm}\n\n";
   print "\tOptional Settings:\n";
   print "\t-?: this help message\n";
   print "\t-r: reverse threshold (so amounts below threshold values will alert)\n";
@@ -227,6 +230,8 @@ sub help {
   print "\t-a [name]: aggregation name\n";
   print "\t-t [type]: aggregation type\n";
   print "\t-f [field_name]: the name of the field to aggregate\n";
+  print "\t-y [year]: the year of your latest elasticsearch index leaving this blank will use today's date\n";
+  print "\t-m [month]: the month of your latest elasticsearch index leaving this blank will use today's date\n";
   print "\t-d [day]: the day of your latest elasticsearch index\n\n";
   print "Error codes:\n";
   print "\t0: Everything OK, check passed\n";

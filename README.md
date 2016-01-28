@@ -13,9 +13,7 @@ Required Settings:
         -h [host]: elasticsearch host
         -i [number_of_indices]: the number of indices to go back through, defaults to 2
         -x [indices_prefix]: the prefix of your elasticsearch indices
-        -m [month]: the month of your latest elasticsearch index
         -n [index_pattern]: the pattern expects a prefix and months or years, e.g: {prefix}-{yyyy}.{mm}
-        -y [year]: the year of your latest elasticsearch index
 
         Optional Settings:
         -?: this help message
@@ -24,6 +22,8 @@ Required Settings:
         -a [name]: aggregation name
         -t [type]: aggregation type
         -f [field_name]: the name of the field to aggregate
+        -y [year]: the year of your latest elasticsearch index leaving this blank will use today's date
+        -m [month]: the month of your latest elasticsearch index leaving this blank will use today's date
         -d [day]: the day of your latest elasticsearch index
 
 Error codes:
@@ -31,6 +31,7 @@ Error codes:
         1: Warning threshold breached
         2: Critical threshold breached
         3: Unknown, encountered an error querying elasticsearch
+
 ```
 
 ## Icinga2 Config
