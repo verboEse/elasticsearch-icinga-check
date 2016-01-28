@@ -18,7 +18,7 @@ Required Settings:
         Optional Settings:
         -?: this help message
         -r: reverse threshold (so amounts below threshold values will alert)
-        -q [port]: elasticsearch port (defaults to 9200)
+        -p [port]: elasticsearch port (defaults to 9200)
         -a [name]: aggregation name
         -t [type]: aggregation type
         -f [field_name]: the name of the field to aggregate

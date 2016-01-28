@@ -225,7 +225,7 @@ sub help {
   print "\tOptional Settings:\n";
   print "\t-?: this help message\n";
   print "\t-r: reverse threshold (so amounts below threshold values will alert)\n";
-  print "\t-q [port]: elasticsearch port (defaults to 9200)\n";
+  print "\t-p [port]: elasticsearch port (defaults to 9200)\n";
   print "\t-a [name]: aggregation name\n";
   print "\t-t [type]: aggregation type\n";
   print "\t-f [field_name]: the name of the field to aggregate\n";
