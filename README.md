@@ -3,27 +3,34 @@ Perl script to check metrics from elasticsearch for use as a custom Icinga2 chec
 
 ## Usage
 ```
-$ ./check-elasticsearch-metrics.pl [OPTIONS]
+check-elasticsearch-metrics.pl [OPTIONS]
 
 Required Settings:
         -c [threshold]: critical threshold
         -w [threshold]: warning threshold
         -s [seconds]: number of seconds from now to check
+        -q [query_string]: the query to run in elasticsearch
+        -h [host]: elasticsearch host
+        -i [number_of_indices]: the number of indices to go back through, defaults to 2
+        -x [indices_prefix]: the prefix of your elasticsearch indices
+        -m [month]: the month of your latest elasticsearch index
+        -n [index_pattern]: the pattern expects a prefix and months or years, e.g: {prefix}-{yyyy}.{mm}
+        -y [year]: the year of your latest elasticsearch index
+
+        Optional Settings:
+        -?: this help message
+        -r: reverse threshold (so amounts below threshold values will alert)
+        -q [port]: elasticsearch port (defaults to 9200)
         -a [name]: aggregation name
         -t [type]: aggregation type
         -f [field_name]: the name of the field to aggregate
-        -q [query_string]: the query to run in elasticsearch
-        -h [host]: elasticsearch host
-
-Optional Settings:
-        -r: reverse threshold (so amounts below threshold values will alert)
-        -q [port]: elasticsearch port (defaults to 9200)
+        -d [day]: the day of your latest elasticsearch index
 
 Error codes:
         0: Everything OK, check passed
         1: Warning threshold breached
         2: Critical threshold breached
-        4: Unknown, encountered an error querying elasticsearch
+        3: Unknown, encountered an error querying elasticsearch
 ```
 
 ## Icinga2 Config
