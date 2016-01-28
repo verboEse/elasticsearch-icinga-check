@@ -6,7 +6,7 @@ use Time::HiRes qw(gettimeofday);
 use Time::Piece;
 use DateTime::Format::Strptime;
 
-my $args = "rc:w:s:a:t:f:q:h:p:x:d:n:m:y:i:";
+my $args = "drc:w:s:a:t:f:q:h:p:x:n:i:o:";
 getopts("$args", \%opt);
 
 if(!defined $opt{s}){
@@ -51,7 +51,6 @@ my $port = $opt{p};
 my $indexPattern = $opt{n};
 my $earliestIndexCount = $opt{i};
 my $hasDays = defined $opt{d};
-my $specifiedDate = defined $opt{m} && defined $opt{y};
 my $hasAggregation = $aggregationName && $aggregationType && $field;
 
 makeElasticsearchRequest();
@@ -61,7 +60,6 @@ sub makeElasticsearchRequest {
   $ua->agent("Icinga Check/0.1 ");
   
   my $indices = buildIndices();
-
   my $req = HTTP::Request->new(POST => "http://$host:$port/$indices/_search");
   $req->content_type('application/json');
   my $content = "{
@@ -140,11 +138,10 @@ sub buildIndices {
 }
 
 sub parseDate {
-  if(!$specifiedDate){
-    my $now = localtime;
-    $opt{y} = $now->year;
-    $opt{m} = $now->mon;
-  }
+  my $now = localtime;
+  $year = $now->year;
+  $month = $now->mon;
+  $day = $now->mday;
   my $pattern = "%Y/%m";
   if($hasDays){
     $pattern = "$pattern/%d";
@@ -153,9 +150,9 @@ sub parseDate {
     pattern => $pattern,
     on_error => 'croak',
   );
-  my $date = "$opt{y}/$opt{m}";
+  my $date = "$year/$month";
   if($hasDays){
-    $date = "$date/$opt{d}";
+    $date = "$date/$day";
   }
   return $parser->parse_datetime($date);
 }
@@ -225,10 +222,7 @@ sub help {
   print "\t-a [name]: aggregation name\n";
   print "\t-t [type]: aggregation type\n";
   print "\t-f [field_name]: the name of the field to aggregate\n";
-  print "\t-x [indices_prefix]: the prefix of your elasticsearch indices\n";
-  print "\t-y [year]: the year of your latest elasticsearch index leaving this blank will use today's date\n";
-  print "\t-m [month]: the month of your latest elasticsearch index leaving this blank will use today's date\n";
-  print "\t-d [day]: the day of your latest elasticsearch index\n\n";
+  print "\t-d [day]: include the day in elasticsearch index\n\n";
   print "Error codes:\n";
   print "\t0: Everything OK, check passed\n";
   print "\t1: Warning threshold breached\n";
