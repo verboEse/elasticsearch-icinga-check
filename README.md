@@ -22,9 +22,7 @@ Required Settings:
         -t [type]: aggregation type
         -f [field_name]: the name of the field to aggregate
         -x [indices_prefix]: the prefix of your elasticsearch indices
-        -y [year]: the year of your latest elasticsearch index leaving this blank will use today's date
-        -m [month]: the month of your latest elasticsearch index leaving this blank will use today's date
-        -d [day]: the day of your latest elasticsearch index
+        -d: include the day in elasticsearch index
 
 Error codes:
         0: Everything OK, check passed

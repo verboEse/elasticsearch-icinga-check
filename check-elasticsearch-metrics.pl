@@ -220,7 +220,7 @@ sub help {
   print "\t-a [name]: aggregation name\n";
   print "\t-t [type]: aggregation type\n";
   print "\t-f [field_name]: the name of the field to aggregate\n";
-  print "\t-d [day]: include the day in elasticsearch index\n\n";
+  print "\t-d: include the day in elasticsearch index\n\n";
   print "Error codes:\n";
   print "\t0: Everything OK, check passed\n";
   print "\t1: Warning threshold breached\n";
