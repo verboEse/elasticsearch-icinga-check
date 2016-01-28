@@ -6,7 +6,7 @@ use Time::HiRes qw(gettimeofday);
 use Time::Piece;
 use DateTime::Format::Strptime;
 
-my $args = "drc:w:s:a:t:f:q:h:p:x:n:i:o:";
+my $args = "drc:w:s:a:t:f:q:h:p:x:n:i:";
 getopts("$args", \%opt);
 
 if(!defined $opt{s}){
@@ -37,8 +37,7 @@ if(!defined $opt{i}){
 my $indexCount = 1;
 my $rawNow = localtime;
 my $rawFrom = $rawNow - $opt{s};
-my $now = $rawNow->epoch * 1000;
-my $fromTime = $rawFrom->epoch * 1000;
+my $fromTime = "now-$opt{s}s";
 my $critical = $opt{c};
 my $warning = $opt{w};
 my $reverse = $opt{r};
@@ -50,6 +49,7 @@ my $host = $opt{h};
 my $port = $opt{p};
 my $indexPattern = $opt{n};
 my $earliestIndexCount = $opt{i};
+my $timeFormat = $opt{o};
 my $hasDays = defined $opt{d};
 my $hasAggregation = $aggregationName && $aggregationType && $field;
 
@@ -78,9 +78,7 @@ sub makeElasticsearchRequest {
               {
                 \"range\": {
                   \"\@timestamp\": {
-                    \"gte\": $fromTime,
-                    \"lte\": $now,
-                    \"format\": \"epoch_millis\"
+                    \"gte\": \"$fromTime\"
                   }
                 }
               }
@@ -100,6 +98,7 @@ sub makeElasticsearchRequest {
       }";
   }
   $content = "$content }";
+  print $content;
   $req->content($content);
   my $res = $ua->request($req);
   parseElasticsearchResponse($res);
