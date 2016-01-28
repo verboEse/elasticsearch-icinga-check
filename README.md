@@ -12,8 +12,7 @@ Required Settings:
         -q [query_string]: the query to run in elasticsearch
         -h [host]: elasticsearch host
         -i [number_of_indices]: the number of indices to go back through, defaults to 2
-        -x [indices_prefix]: the prefix of your elasticsearch indices
-        -n [index_pattern]: the pattern expects a prefix and months or years, e.g: {prefix}-{yyyy}.{mm}
+        -n [index_pattern]: the pattern expects months and years and can take aprefix and days, e.g: metrics-{yyyy}.{mm}
 
         Optional Settings:
         -?: this help message
@@ -22,6 +21,7 @@ Required Settings:
         -a [name]: aggregation name
         -t [type]: aggregation type
         -f [field_name]: the name of the field to aggregate
+        -x [indices_prefix]: the prefix of your elasticsearch indices
         -y [year]: the year of your latest elasticsearch index leaving this blank will use today's date
         -m [month]: the month of your latest elasticsearch index leaving this blank will use today's date
         -d [day]: the day of your latest elasticsearch index
