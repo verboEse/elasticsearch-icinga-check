@@ -50,7 +50,9 @@ object CheckCommand "check-elasticsearch" {
     "-f" = "$elasticsearch_aggregation_field$"
     "-t" = "$elasticsearch_aggregation_type$"
     "-s" = "$elasticsearch_seconds$"
+    "-x" = "$elasticsearch_index_prefix$"
     "-h" = "elasticsearch.host.example.com"
+    "-n" = "{prefix}-{yyyy.{mm}"
     "-p" = "9200"
     "-r" = {
         set_if = "$elasticsearch_reverse$"
@@ -75,6 +77,7 @@ Service "Errors ES" {
 	vars.elasticsearch_aggregation_field = "value"
 	vars.elasticsearch_aggregation_type = "sum"
 	vars.elasticsearch_seconds = 60 * 60
+    vars.elasticsearch_index_prefix = "metrics"
 }
 ```
 
