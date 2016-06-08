@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use LWP::UserAgent; 
+use LWP::UserAgent;
 use JSON::XS;
 use Getopt::Std;
 use Time::HiRes qw(gettimeofday);
@@ -58,7 +58,7 @@ makeElasticsearchRequest();
 sub makeElasticsearchRequest {
   my $ua = LWP::UserAgent->new;
   $ua->agent("Icinga Check/0.1 ");
-  
+
   my $indices = buildIndices();
   my $req = HTTP::Request->new(POST => "http://$host:$port/$indices/_search");
   $req->content_type('application/json');
@@ -104,55 +104,51 @@ sub makeElasticsearchRequest {
 }
 
 sub buildIndices {
-  my $indexCount = 1;
-  my $index;
-  my $parsedDate = parseDate();
+    my $now = localtime;
+    $year = $now->year;
+    $month = $now->mon;
+    $day = $now->mday;
+    my $pattern = "%Y/%m/%d";
+    my $parser = DateTime::Format::Strptime->new(
+        pattern => $pattern,
+        on_error => 'croak',
+    );
+    my $date = "$year/$month/$day";
+    my $parsedDate = $parser->parse_datetime($date);
 
-  while ($indexCount <= $earliestIndexCount){
-    my $year = $parsedDate->year;
-    my $month = $parsedDate->month;
-    if($month < 10){
-      $month = "0$month"
-    }
-    my $day = $parsedDate->day;
-    if($day < 10){
-      $day = "0$day"
-    }
-    $index = "$index$indexPattern";
-    $index =~ s/{prefix}/$opt{x}/g;
-    $index =~ s/{yyyy}/$year/g;
-    $index =~ s/{mm}/$month/g;
-    $index =~ s/{dd}/$day/g;
-    $index = "$index,";
-    if($hasDays){
-      $parsedDate->subtract(days => 1);
-    } else {
-      $parsedDate->subtract(months => 1);
-    }
-    $indexCount++;
-  }
-  chop($index);
-  return $index
-}
+    my $indexCount = 1;
+    my $index;
 
-sub parseDate {
-  my $now = localtime;
-  $year = $now->year;
-  $month = $now->mon;
-  $day = $now->mday;
-  my $pattern = "%Y/%m";
-  if($hasDays){
-    $pattern = "$pattern/%d";
-  }
-  my $parser = DateTime::Format::Strptime->new(
-    pattern => $pattern,
-    on_error => 'croak',
-  );
-  my $date = "$year/$month";
-  if($hasDays){
-    $date = "$date/$day";
-  }
-  return $parser->parse_datetime($date);
+    my @indexPatterns = ("metrics-{yyyy}.{mm}.{dd}", "metrics-{yyyy}.{mm}");
+    my $test = $indexPattern == "logstash-{yyyy}.{mm}.{dd}";
+    if($hasDays) {
+        @indexPatterns = ($indexPattern);
+    }
+
+    while ($indexCount <= $earliestIndexCount) {
+        foreach my $indexPattern (@indexPatterns) {
+            my $year = $parsedDate->year;
+            my $month = $parsedDate->month;
+            if($month < 10){
+              $month = "0$month"
+            }
+            my $day = $parsedDate->day;
+            if($day < 10){
+              $day = "0$day"
+            }
+            my $patternToAppend = $indexPattern;
+            $patternToAppend=~ s/{yyyy}/$year/g;
+            $patternToAppend =~ s/{mm}/$month/g;
+            $patternToAppend =~ s/{dd}/$day/g;
+            $patternToAppend = "$patternToAppend,";
+            $index = "$index$patternToAppend"
+        }
+        $parsedDate->subtract(days => 1);
+        $indexCount++;
+    }
+
+    chop($index);
+    return $index
 }
 
 sub parseElasticsearchResponse {
@@ -169,7 +165,7 @@ sub parseElasticsearchResponse {
       my %hits = %{$parsed{hits}};
       $value = $hits{total};
     }
-    
+
     my $alertStatus = getAlertStatus($value);
     print "\nExited with: $alertStatus, Current Value: $value, Critical: $critical, Warning: $warning\n";
     exit $alertStatus;

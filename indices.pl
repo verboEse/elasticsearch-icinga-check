@@ -19,8 +19,11 @@ sub buildMetricsIndices {
     my $index;
 
     my @indexPatterns = ("metrics-{yyyy}.{mm}.{dd}", "metrics-{yyyy}.{mm}");
+    if($indexPattern == "logstash-{yyyy}.{mm}.{dd}") {
+        @indexPatterns = ($indexPattern);
+    }
 
-    while ($indexCount <= 2) {
+    while ($indexCount <= $earliestIndexCount) {
         foreach my $indexPattern (@indexPatterns) {
             my $year = $parsedDate->year;
             my $month = $parsedDate->month;
