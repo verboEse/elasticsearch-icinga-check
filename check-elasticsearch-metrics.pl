@@ -119,7 +119,7 @@ sub buildIndices {
     my $indexCount = 1;
     my $index;
 
-    my @indexPatterns = ("metrics-{yyyy}.{mm}.{dd}", "metrics-{yyyy}.{mm}");
+    my @indexPatterns = ("metrics-{yyyy}.{mm}.{dd}");
     my $test = $indexPattern == "logstash-{yyyy}.{mm}.{dd}";
     if($hasDays) {
         @indexPatterns = ($indexPattern);
