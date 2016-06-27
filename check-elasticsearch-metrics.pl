@@ -2,7 +2,6 @@
 use LWP::UserAgent;
 use JSON::XS;
 use Getopt::Std;
-use Time::HiRes qw(gettimeofday);
 use Time::Piece;
 use DateTime::Format::Strptime;
 
