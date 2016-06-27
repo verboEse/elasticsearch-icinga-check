@@ -172,6 +172,7 @@ sub parseElasticsearchResponse {
   }
   else {
       print $res->status_line, " from elasticsearch\n";
+      print $res->content, "\n";
       exit 3;
   }
 }
