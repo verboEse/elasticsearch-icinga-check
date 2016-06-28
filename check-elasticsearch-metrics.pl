@@ -52,6 +52,7 @@ my $timeFormat = $opt{o};
 my $hasDays = defined $opt{d};
 my $hasAggregation = $aggregationName && $aggregationType && $field;
 my $reqContent = "";
+my $reqUrl = "";
 
 makeElasticsearchRequest();
 
@@ -60,7 +61,8 @@ sub makeElasticsearchRequest {
   $ua->agent("Icinga Check/0.1 ");
 
   my $indices = buildIndices();
-  my $req = HTTP::Request->new(POST => "http://$host:$port/$indices/_search");
+  $reqUrl = "http://$host:$port/$indices/_search";
+  my $req = HTTP::Request->new(POST => $reqUrl);
   $req->content_type('application/json');
   $reqContent = "{
     \"size\": 0,
@@ -174,7 +176,8 @@ sub parseElasticsearchResponse {
   else {
       print $res->status_line, " from elasticsearch\n";
       print $res->content, "\n";
-      print "request made:\n", $reqContent, "\n";
+      print "made to:", $reqUrl, "\n";
+      print "request body:\n", $reqContent, "\n";
       exit 3;
   }
 }
