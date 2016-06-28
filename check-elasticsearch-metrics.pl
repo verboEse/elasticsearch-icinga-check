@@ -62,6 +62,7 @@ sub makeElasticsearchRequest {
 
   my $indices = buildIndices();
   $reqUrl = "http://$host:$port/$indices/_search";
+  print "$reqUrl\n";
   my $req = HTTP::Request->new(POST => $reqUrl);
   $req->content_type('application/json');
   $reqContent = "{
@@ -122,7 +123,6 @@ sub buildIndices {
     my $index;
 
     my @indexPatterns = ("metrics-{yyyy}.{mm}.{dd}");
-    my $test = $indexPattern == "logstash-{yyyy}.{mm}.{dd}";
     if($hasDays) {
         @indexPatterns = ($indexPattern);
     }
@@ -139,23 +139,30 @@ sub buildIndices {
               $day = "0$day"
             }
             my $patternToAppend = $indexPattern;
-            $patternToAppend=~ s/{yyyy}/$year/g;
+            print "$patternToAppend\n";
+            $patternToAppend =~ s/{yyyy}/$year/g;
+            print "$patternToAppend\n";
             $patternToAppend =~ s/{mm}/$month/g;
+            print "$patternToAppend\n";
             $patternToAppend =~ s/{dd}/$day/g;
+            print "$patternToAppend\n";
             $patternToAppend = "$patternToAppend,";
-            $index = "$index$patternToAppend"
+            print "$patternToAppend\n";
+            $index = "$index$patternToAppend";
+            print "$index\n";
         }
         $parsedDate->subtract(days => 1);
         $indexCount++;
     }
 
     chop($index);
+    print "$index\n";
     return $index
 }
 
 sub parseElasticsearchResponse {
   my ($res) = @_;
-  
+
   if ($res->is_success) {
     my $resContent = $res->content;
     my %parsed = %{decode_json $resContent};
