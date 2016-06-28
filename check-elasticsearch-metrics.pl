@@ -51,6 +51,7 @@ my $earliestIndexCount = $opt{i};
 my $timeFormat = $opt{o};
 my $hasDays = defined $opt{d};
 my $hasAggregation = $aggregationName && $aggregationType && $field;
+my $reqContent = "";
 
 makeElasticsearchRequest();
 
@@ -61,7 +62,7 @@ sub makeElasticsearchRequest {
   my $indices = buildIndices();
   my $req = HTTP::Request->new(POST => "http://$host:$port/$indices/_search");
   $req->content_type('application/json');
-  my $content = "{
+  $reqContent = "{
     \"size\": 0,
     \"query\": {
       \"filtered\": {
@@ -88,7 +89,7 @@ sub makeElasticsearchRequest {
       }
     }";
   if($hasAggregation){
-    $content = "$content,\"aggs\": {
+    $reqContent = "$reqContent,\"aggs\": {
         \"$aggregationName\": {
           \"$aggregationType\": {
             \"field\": \"$field\"
@@ -96,8 +97,8 @@ sub makeElasticsearchRequest {
         }
       }";
   }
-  $content = "$content }";
-  $req->content($content);
+  $reqContent = "$reqContent }";
+  $req->content($reqContent);
   my $res = $ua->request($req);
   parseElasticsearchResponse($res);
 }
@@ -152,9 +153,10 @@ sub buildIndices {
 
 sub parseElasticsearchResponse {
   my ($res) = @_;
+  
   if ($res->is_success) {
-    my $content = $res->content;
-    my %parsed = %{decode_json $content};
+    my $resContent = $res->content;
+    my %parsed = %{decode_json $resContent};
     my $value = -1;
     if($hasAggregation){
       my %aggregations = %{$parsed{aggregations}};
@@ -172,6 +174,7 @@ sub parseElasticsearchResponse {
   else {
       print $res->status_line, " from elasticsearch\n";
       print $res->content, "\n";
+      print "request made:\n", $reqContent, "\n";
       exit 3;
   }
 }
