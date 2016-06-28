@@ -62,7 +62,6 @@ sub makeElasticsearchRequest {
 
   my $indices = buildIndices();
   $reqUrl = "http://$host:$port/$indices/_search";
-  print "$reqUrl\n";
   my $req = HTTP::Request->new(POST => $reqUrl);
   $req->content_type('application/json');
   $reqContent = "{
@@ -139,24 +138,17 @@ sub buildIndices {
               $day = "0$day"
             }
             my $patternToAppend = $indexPattern;
-            print "$patternToAppend\n";
             $patternToAppend =~ s/{yyyy}/$year/g;
-            print "$patternToAppend\n";
             $patternToAppend =~ s/{mm}/$month/g;
-            print "$patternToAppend\n";
             $patternToAppend =~ s/{dd}/$day/g;
-            print "$patternToAppend\n";
             $patternToAppend = "$patternToAppend,";
-            print "$patternToAppend\n";
             $index = "$index$patternToAppend";
-            print "$index\n";
         }
         $parsedDate->subtract(days => 1);
         $indexCount++;
     }
 
     chop($index);
-    print "$index\n";
     return $index
 }
 
