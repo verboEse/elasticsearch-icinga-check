@@ -23,9 +23,6 @@ if(!defined $opt{q}){
 if(!defined $opt{h}){
   return inputError('h');
 }
-if(!defined $opt{n}){
-  return inputError('n');
-}
 if(!defined $opt{p}){
   $opt{p} = 9200;
 }
@@ -34,8 +31,6 @@ if(!defined $opt{i}){
 }
 
 my $indexCount = 1;
-my $rawNow = localtime;
-my $rawFrom = $rawNow - $opt{s};
 my $fromTime = "now-$opt{s}s";
 my $critical = $opt{c};
 my $warning = $opt{w};
@@ -106,7 +101,7 @@ sub makeElasticsearchRequest {
 }
 
 sub buildIndices {
-    my $now = localtime;
+    my $now = gmtime;
     $year = $now->year;
     $month = $now->mon;
     $day = $now->mday;
