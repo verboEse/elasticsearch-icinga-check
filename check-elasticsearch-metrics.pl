@@ -5,7 +5,7 @@ use Getopt::Std;
 use Time::Piece;
 use DateTime::Format::Strptime;
 
-my $args = "drc:w:s:a:t:f:q:h:p:x:n:i:";
+my $args = "zdrc:w:s:a:t:f:q:h:p:x:n:i:";
 getopts("$args", \%opt);
 
 if(!defined $opt{s}){
@@ -48,6 +48,7 @@ my $hasDays = defined $opt{d};
 my $hasAggregation = $aggregationName && $aggregationType && $field;
 my $reqContent = "";
 my $reqUrl = "";
+my $debug = defined $opt{z};
 
 makeElasticsearchRequest();
 
@@ -57,6 +58,9 @@ sub makeElasticsearchRequest {
 
   my $indices = buildIndices();
   $reqUrl = "http://$host:$port/$indices/_search";
+  if($debug){
+    print "Request URL... $reqUrl\n";
+  }
   my $req = HTTP::Request->new(POST => $reqUrl);
   $req->content_type('application/json');
   $reqContent = "{
@@ -95,8 +99,12 @@ sub makeElasticsearchRequest {
       }";
   }
   $reqContent = "$reqContent }";
+  if($debug){
+    print "Request...\n$reqContent\n\n";
+  }
   $req->content($reqContent);
   my $res = $ua->request($req);
+
   parseElasticsearchResponse($res);
 }
 
@@ -116,7 +124,7 @@ sub buildIndices {
     my $indexCount = 1;
     my $index;
 
-    my @indexPatterns = ("metrics-{yyyy}.{mm}.{dd}");
+    my @indexPatterns = ("kernel-{yyyy}.{mm}.{dd}");
     if($hasDays) {
         @indexPatterns = ($indexPattern);
     }
@@ -153,6 +161,9 @@ sub parseElasticsearchResponse {
   if ($res->is_success) {
     my $resContent = $res->content;
     my %parsed = %{decode_json $resContent};
+    if($debug){
+      print "Response...\n$resContent\n";
+    }
     my $value = -1;
     if($hasAggregation){
       my %aggregations = %{$parsed{aggregations}};
@@ -216,7 +227,8 @@ sub help {
   print "\t-a [name]: aggregation name\n";
   print "\t-t [type]: aggregation type\n";
   print "\t-f [field_name]: the name of the field to aggregate\n";
-  print "\t-d: include the day in elasticsearch index\n\n";
+  print "\t-d: include the day in elasticsearch index\n";
+  print "\t-z: debug mode\n\n";
   print "Error codes:\n";
   print "\t0: Everything OK, check passed\n";
   print "\t1: Warning threshold breached\n";
