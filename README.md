@@ -23,6 +23,7 @@ Required Settings:
         -f [field_name]: the name of the field to aggregate
         -x [indices_prefix]: the prefix of your elasticsearch indices
         -d: include the day in elasticsearch index
+        -z: debug mode
 
 Error codes:
         0: Everything OK, check passed
