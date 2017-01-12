@@ -66,8 +66,8 @@ sub makeElasticsearchRequest {
   $reqContent = "{
     \"size\": 0,
     \"query\": {
-      \"filtered\": {
-        \"query\": {
+      \"bool\": {
+        \"must\": {
           \"query_string\": {
             \"query\": \"$query\",
             \"analyze_wildcard\": true
@@ -124,7 +124,7 @@ sub buildIndices {
     my $indexCount = 1;
     my $index;
 
-    my @indexPatterns = ("kernel-{yyyy}.{mm}.{dd}");
+    my @indexPatterns = ("logstash-{yyyy}.{mm}.{dd}");
     if($hasDays) {
         @indexPatterns = ($indexPattern);
     }
